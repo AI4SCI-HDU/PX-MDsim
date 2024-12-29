@@ -189,11 +189,19 @@ output=$(python3 Identify_double.py $strFileDouble)
 # 从输出中提取NewType_C和NewType_N的值
 new_type_c=$(echo "$output" | grep "Type_Carboxy_C_New:" | cut -d ' ' -f2)
 new_type_n=$(echo "$output" | grep "Type_Amine_N_New:" | cut -d ' ' -f2)
+new_type_o2c=$(echo "$output" | grep "Type_Oxygen_Bonded_to_C:" | cut -d ' ' -f2)
+new_type_c2c=$(echo "$output" | grep "Type_C_Bonded_to_NC:" | cut -d ' ' -f2)
+new_type_c2n=$(echo "$output" | grep "Type_C_Bonded_to_N:" | cut -d ' ' -f2)
+new_type_h2n=$(echo "$output" | grep "Type_H_Bonded_to_N:" | cut -d ' ' -f2)
 echo "NewType_C: $new_type_c"
 echo "NewType_N: $new_type_n"
+echo "NewType_o2c: $new_type_o2c"
+echo "NewType_c2c: $new_type_c2c"
+echo "NewType_c2n: $new_type_c2n"
+echo "NewType_h2c: $new_type_h2n"
 
 # 检查是否成功提取了需要的值
-if [ -z "$new_type_c" ] || [ -z "$new_type_n" ]; then
+if [ -z "$new_type_c" ] || [ -z "$new_type_n" ] || [ -z "$new_type_o2c" ] || [ -z "$new_type_c2c" ] || [ -z "$new_type_c2n" ] || [ -z "$new_type_h2n" ]; then
     echo "无法获取官能团的原子类型，请检查可识别的官能团是否存在。"
     exit 1
 fi
@@ -214,15 +222,19 @@ sleep 2
 
 ####################################################
 
-output=$(python3 get_charge.py "$new_type_c" "$new_type_n" "$type_carboxy_c" "$type_amine_n")
+output=$(python3 get_charge.py "$new_type_c" "$new_type_n" "$type_carboxy_c" "$type_amine_n" "$new_type_o2c" "$new_type_c2c" "$new_type_c2n" "$new_type_h2n" "$type_carboxy_o" "$type_carboxy_r" "$type_amine_r" "$type_amine_h")
 
 # Extract the charge differences from the output
 difference_c=$(echo $output | cut -d ' ' -f1)
 difference_n=$(echo $output | cut -d ' ' -f2)
+difference_o2c = $(echo $output | cut -d ' ' -f3)
+difference_c2c = $(echo $output | cut -d ' ' -f4)
+difference_c2n = $(echo $output | cut -d ' ' -f5)
+difference_h2n = $(echo $output | cut -d ' ' -f6)
 
 # Use sed to replace the first element of the self.delta_charge_C and self.delta_charge_N lists in PXLink.py
-sed -i "s/self.delta_charge_C = \[0, 0, 0\]/self.delta_charge_C = \[$difference_c, 0, 0\]/g" PXLink.py
-sed -i "s/self.delta_charge_N = \[0, 0, 0\]/self.delta_charge_N = \[$difference_n, 0, 0\]/g" PXLink.py
+sed -i "s/self.delta_charge_C = \[0, 0, 0\]/self.delta_charge_C = \[$difference_c, $difference_o2c, $difference_c2c\]/g" PXLink.py
+sed -i "s/self.delta_charge_N = \[0, 0, 0\]/self.delta_charge_N = \[$difference_n, $difference_h2n, $difference_c2n\]/g" PXLink.py
 
 echo "Updated PXLink.py with new charge values."
 
