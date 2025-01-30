@@ -24,9 +24,9 @@ def extract_charge(file_path, residue_type):
 
 def main(residue_new_type_c, residue_new_type_n, residue_type_carboxy_c, residue_type_amine_n, residue_new_type_o2c, residue_new_type_c2c, residue_new_type_c2n, residue_new_type_h2n, residue_type_carboxy_o, residue_type_carboxy_r, residue_type_amine_r, residue_type_amine_h):
     # File paths
-    path_two = "TMAXLN.str"
+    path_two = "TMATAE.str"
     path_C = "TMA.str"
-    path_N = "XLN.str"
+    path_N = "TAE.str"
 
     # Extract charges
     charge_new_type_c = extract_charge(path_two, residue_new_type_c)
@@ -57,8 +57,8 @@ def main(residue_new_type_c, residue_new_type_n, residue_type_carboxy_c, residue
 
 if __name__ == "__main__":
     # Expects four command-line arguments: the residue types
-    if len(sys.argv) != 5:
-        print("Usage: python script.py <new_type_c> <new_type_n> <type_carboxy_c> <type_amine_n>")
+    if len(sys.argv) != 13:
+        print("Usage: python script.py <new_type_c> <new_type_n>...")
         sys.exit(1)
 
     residue_new_type_c = sys.argv[1]
